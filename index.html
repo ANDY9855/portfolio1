@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANDY OS PORTFOLIO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        body { font-family: 'Inter', sans-serif; overflow: hidden; background: #000; height: 100vh; }
+        
+        /* ===== BOOT SCREEN ===== */
+        #bootScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #000 0%, #111 100%);
+            z-index: 100000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: white;
+        }
+        
+        .bootLogo {
+            width: 120px; height: 120px; position: relative;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        
+        .bootFlag {
+            position: absolute; width: 50px; height: 50px; border-radius: 4px;
+            animation: flagWave 1s ease-out forwards; opacity: 0;
+        }
+        .bootFlag:nth-child(1) { background: #ff3333; top: 0; left: 0; animation-delay: 0.2s; }
+        .bootFlag:nth-child(2) { background: #33ff33; top: 0; right: 0; animation-delay: 0.4s; }
+        .bootFlag:nth-child(3) { background: #3333ff; bottom: 0; left: 0; animation-delay: 0.6s; }
+        .bootFlag:nth-child(4) { background: #ffff33; bottom: 0; right: 0; animation-delay: 0.8s; }
+        
+        @keyframes flagWave {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        .bootText {
+            margin-top: 30px; font-size: 36px; font-weight: 700;
+            letter-spacing: 4px; text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            opacity: 0; animation: fadeIn 1s 1s forwards;
+        }
+        .bootSub { font-size: 18px; color: #ff3333; margin-top: 10px; opacity: 0; animation: fadeIn 1s 1.5s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        
+        .loader {
+            margin-top: 40px; width: 300px; height: 4px; background: #333;
+            border-radius: 2px; overflow: hidden; opacity: 0;
+            animation: fadeIn 0.5s 2s forwards;
+        }
+        .loaderBar {
+            width: 0%; height: 100%; background: linear-gradient(90deg, #4a90e2, #5aa0f2);
+            animation: load 3s 2.5s forwards;
+        }
+        @keyframes load { to { width: 100%; } }
+        
+        /* ===== OS SELECTION ===== */
+        #osSelect {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            z-index: 99999; flex-direction: column; justify-content: center; align-items: center;
+        }
+        
+        .osTitle { color: white; font-size: 42px; font-weight: 300; margin-bottom: 60px; text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .osGrid { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; max-width: 1000px; }
+        .osCard {
+            width: 200px; height: 260px; background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer;
+            transition: all 0.3s ease; color: white;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .osCard:hover {
+            transform: translateY(-10px); background: rgba(255,255,255,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.4);
+        }
+        .osIcon { font-size: 60px; margin-bottom: 15px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+        .osName { font-size: 20px; font-weight: 600; }
+        .osVer { font-size: 14px; opacity: 0.7; margin-top: 5px; }
+        
+        /* ===== DESKTOP ENVIRONMENT ===== */
+        #desktop {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden;
+        }
+        
+        /* Wallpapers per OS */
+        .theme-win11 #desktop { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .theme-macos #desktop { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .theme-ubuntu #desktop { background: linear-gradient(135deg, #772953 0%, #e95420 100%); }
+        .theme-retro #desktop { background: #008080; }
+        
+        /* Desktop Icons */
+        .deskIcons {
+            position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column;
+            gap: 25px; z-index: 100;
+        }
+        .deskIcon {
+            width: 80px; text-align: center; cursor: pointer; padding: 10px;
+            border-radius: 10px; transition: all 0.2s; color: white;
+        }
+        .deskIcon:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        .deskIcon .ic { font-size: 40px; margin-bottom: 5px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .deskIcon .txt { font-size: 12px; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        
+        /* ===== WINDOWS ===== */
+        .win {
+            position: absolute; background: rgba(30,30,30,0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); min-width: 350px; min-height: 300px;
+            display: flex; flex-direction: column; overflow: hidden; resize: both;
+        }
+        .winHead {
+            background: rgba(255,255,255,0.05); padding: 12px 16px; display: flex;
+            justify-content: space-between; align-items: center; cursor: move;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .winTitle { display: flex; align-items: center; gap: 10px; color: white; font-weight: 500; font-size: 14px; }
+        .winControls { display: flex; gap: 8px; }
+        .winBtn {
+            width: 24px; height: 24px; border-radius: 50%; border: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: white; transition: all 0.2s;
+        }
+        .winBtn:hover { transform: scale(1.1); }
+        .winBtn.min { background: #ffbd2e; }
+        .winBtn.max { background: #28c840; }
+        .winBtn.close { background: #ff5f57; }
+        .winContent { flex: 1; overflow: auto; padding: 20px; color: #ddd; }
+        .winMax { top: 0 !important; left: 0 !important; width: 100% !important; height: calc(100% - 60px) !important; resize: none !important; border-radius: 0 !important; }
+        .winMin { display: none !important; }
+        
+        /* Retro Theme Windows */
+        .theme-retro .win { background: #c0c0c0; border: 2px solid; border-color: #fff #000 #000 #fff; border-radius: 0; }
+        .theme-retro .winHead { background: linear-gradient(90deg, #000080, #1084d0); color: white; }
+        .theme-retro .winContent { background: #c0c0c0; color: black; }
+        .theme-retro .winBtn { border-radius: 0; background: #c0c0c0; color: black; border: 2px solid; border-color: #fff #000 #000 #fff; }
+        
+        /* ===== TASKBAR ===== */
+        #taskbar {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 50px;
+            background: rgba(20,20,20,0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.1); display: flex;
+            align-items: center; padding: 0 15px; z-index: 9998; gap: 10px;
+        }
+        #startBtn {
+            height: 40px; padding: 0 20px; background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none; border-radius: 8px; color: white; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.4); transition: all 0.2s;
+        }
+        #startBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.6); }
+        .taskItems { flex: 1; display: flex; gap: 8px; overflow-x: auto; height: 100%; align-items: center; padding: 0 10px; }
+        .taskItem {
+            height: 36px; padding: 0 15px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+            color: white; font-size: 13px; display: flex; align-items: center;
+            gap: 8px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        }
+        .taskItem:hover, .taskItem.active { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); }
+        .sysTray { display: flex; align-items: center; gap: 15px; color: white; padding: 0 15px; font-size: 13px; }
+        
+        /* OS Specific Taskbars */
+        .theme-win11 #taskbar { justify-content: center; height: 55px; }
+        .theme-win11 #startBtn { border-radius: 50%; width: 45px; height: 45px; padding: 0; display: flex; justify-content: center; }
+        .theme-win11 .taskItem { min-width: 40px; padding: 0; justify-content: center; }
+        .theme-win11 .taskItem span:last-child { display: none; }
+        
+        .theme-macos #taskbar { left: 50%; transform: translateX(-50%); width: auto; bottom: 15px; background: rgba(255,255,255,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; }
+        .theme-macos #startBtn { display: none; }
+        .theme-macos .taskItem { background: transparent; border: none; font-size: 24px; padding: 0 10px; }
+        .theme-macos .taskItem span:last-child { display: none; }
+        .theme-macos .sysTray { display: none; }
+        
+        .theme-ubuntu #taskbar { top: 0; left: 0; bottom: 0; width: 70px; height: 100%; flex-direction: column; background: rgba(0,0,0,0.9); border-right: 1px solid rgba(255,255,255,0.1); padding: 20px 0; }
+        .theme-ubuntu #startBtn { width: 50px; height: 50px; padding: 0; border-radius: 12px; justify-content: center; background: linear-gradient(135deg, #e95420, #772953); }
+        .theme-ubuntu .taskItems { flex-direction: column; width: 100%; padding: 0; gap: 10px; }
+        .theme-ubuntu .taskItem { width: 50px; height: 50px; padding: 0; justify-content: center; border-radius: 12px; }
+        .theme-ubuntu .taskItem span:last-child { display: none; }
+        .theme-ubuntu .sysTray { display: none; }
+        .theme-ubuntu .deskIcons { left: 90px; }
+        
+        .theme-retro #taskbar { background: #c0c0c0; border-top: 2px solid white; height: 40px; }
+        .theme-retro #startBtn { background: #c0c0c0; color: black; border: 2px solid; border-color: white black black white; border-radius: 0; box-shadow: none; }
+        .theme-retro .taskItem { background: transparent; border: 2px solid; border-color: white black black white; color: black; border-radius: 0; }
+        
+        /* ===== START MENU ===== */
+        #startMenu {
+            position: fixed; bottom: 60px; left: 15px; width: 300px;
+            background: rgba(30,30,30,0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.4); display: none; z-index: 9997;
+            flex-direction: column; overflow: hidden;
+        }
+        #startMenu.show { display: flex; }
+        .startHead { padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: 700; }
+        .startList { padding: 10px; }
+        .startItem { padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-radius: 8px; transition: all 0.2s; color: #ddd; font-size: 14px; }
+        .startItem:hover { background: rgba(255,255,255,0.1); color: white; transform: translateX(5px); }
+        
+        /* ===== CONTENT STYLES ===== */
+        .folderGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 20px; padding: 10px; }
+        .folderItem { text-align: center; cursor: pointer; padding: 20px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; transition: all 0.2s; color: white; }
+        .folderItem:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); border-color: rgba(255,255,255,0.3); }
+        .folderItem .ic { font-size: 40px; margin-bottom: 8px; }
+        .folderItem .nm { font-size: 13px; font-weight: 500; }
+        
+        .skillsBox { max-width: 600px; margin: 0 auto; }
+        .skillCat { margin-bottom: 25px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        .skillCat h3 { color: #667eea; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+        .skillRow { margin: 12px 0; }
+        .skillTop { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; color: #aaa; }
+        .skillBar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+        .skillFill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; width: 0; transition: width 1.5s ease; }
+        
+        .contactItem { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; color: #ddd; text-decoration: none; transition: all 0.2s; }
+        .contactItem:hover { background: rgba(255,255,255,0.05); padding-left: 25px; color: white; }
+        .contactItem .ic { font-size: 24px; width: 40px; text-align: center; }
+        .contactItem .info h4 { color: #667eea; margin-bottom: 3px; font-size: 14px; }
+        .contactItem .info p { font-size: 13px; color: #999; }
+        
+        /* CALCULATOR */
+        .calcScreen { background: #000; color: #0f0; font-size: 36px; padding: 20px; text-align: right; margin-bottom: 15px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; border: 2px solid #333; overflow: hidden; }
+        .calcBtns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .calcBtn { padding: 20px; font-size: 20px; border: none; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.1); color: white; font-weight: 600; transition: all 0.1s; }
+        .calcBtn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .calcBtn:active { transform: translateY(0); }
+        .calcBtn.op { background: #ff9500; }
+        .calcBtn.eq { background: #667eea; grid-column: span 2; }
+        .calcBtn.clear { background: #ff3b30; }
+        
+        /* TERMINAL */
+        .term { background: #0c0c0c; height: 100%; padding: 20px; font-family: 'JetBrains Mono', monospace; color: #0f0; overflow-y: auto; font-size: 14px; line-height: 1.6; }
+        .termLine { margin-bottom: 5px; }
+        .termPrompt { color: #667eea; }
+        .termInputLine { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .termInput { background: transparent; border: none; color: #0f0; font-family: inherit; font-size: 14px; outline: none; flex: 1; caret-color: #0f0; }
+        
+        /* GAMES */
+        .gameContainer { text-align: center; padding: 20px; }
+        .gameTitle { font-size: 28px; color: #667eea; margin-bottom: 20px; }
+        
+        /* Snake */
+        #snakeCanvas { border: 3px solid #667eea; background: #000; display: block; margin: 0 auto; }
+        .gameInfo { display: flex; justify-content: space-between; max-width: 400px; margin: 15px auto; font-size: 18px; }
+        .gameBtn { padding: 10px 30px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px; font-weight: 600; }
+        .gameBtn:hover { background: #764ba2; transform: translateY(-2px); }
+        
+        /* Tic Tac Toe */
+        .tttGrid { display: grid; grid-template-columns: repeat(3, 120px); gap: 10px; margin: 20px auto; width: fit-content; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; }
+        .tttCell { width: 120px; height: 120px; background: rgba(0,0,0,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 60px; cursor: pointer; transition: all 0.2s; color: white; }
+        .tttCell:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        .tttCell.x { color: #667eea; }
+        .tttCell.o { color: #e95420; }
+        
+        /* Browser */
+        .browserBar { background: rgba(255,255,255,0.05); padding: 12px; display: flex; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .brBtn { padding: 8px 16px; background: rgba(255,255,255,0.1); border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 12px; }
+        .brBtn:hover { background: rgba(255,255,255,0.2); }
+        .addrBar { flex: 1; padding: 8px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white; font-size: 13px; }
+        .browserFrame { width: 100%; height: calc(100% - 50px); border: none; background: white; }
+        
+        @media (max-width: 768px) {
+            .osGrid { flex-direction: column; }
+            .osTitle { font-size: 28px; text-align: center; }
+            .win { left: 5px !important; top: 5px !important; width: calc(100% - 10px) !important; height: calc(100% - 70px) !important; }
+            .tttGrid { grid-template-columns: repeat(3, 90px); }
+            .tttCell { width: 90px; height: 90px; font-size: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="bootScreen">
+    <div class="bootLogo">
+        <div class="bootFlag"></div>
+        <div class="bootFlag"></div>
+        <div class="bootFlag"></div>
+        <div class="bootFlag"></div>
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 44px; font-weight: 700; color: white; z-index: 10;"></div>
+    </div>
+    <div class="bootText">ANDY OS</div>
+    <div class="bootSub">Professional Portfolio</div>
+    <div class="loader"><div class="loaderBar"></div></div>
+</div>
+
+<!-- OS SELECT -->
+<div id="osSelect">
+    <div class="osTitle">Select Operating System</div>
+    <div class="osGrid">
+        <div class="osCard" onclick="loadOS('theme-win11')">
+            <div class="osIcon">🪟</div>
+            <div class="osName">Windows 11</div>
+            <div class="osVer">Modern Fluent</div>
+        </div>
+        <div class="osCard" onclick="loadOS('theme-macos')">
+            <div class="osIcon">🍎</div>
+            <div class="osName">macOS</div>
+            <div class="osVer">Aqua Glass</div>
+        </div>
+        <div class="osCard" onclick="loadOS('theme-ubuntu')">
+            <div class="osIcon">🐧</div>
+            <div class="osName">Ubuntu</div>
+            <div class="osVer">Linux Power</div>
+        </div>
+        <div class="osCard" onclick="loadOS('theme-retro')">
+            <div class="osIcon">💾</div>
+            <div class="osName">Windows 95</div>
+            <div class="osVer">Classic Retro</div>
+        </div>
+    </div>
+</div>
+
+<!-- DESKTOP -->
+<div id="desktop">
+    <div class="deskIcons">
+        <div class="deskIcon" onclick="openWindow('projects')">
+            <div class="ic">📁</div>
+            <div class="txt">Projects</div>
+        </div>
+        <div class="deskIcon" onclick="openWindow('games')">
+            <div class="ic">🎮</div>
+            <div class="txt">Games</div>
+        </div>
+        <div class="deskIcon" onclick="openWindow('calculator')">
+            <div class="ic">🧮</div>
+            <div class="txt">Calculator</div>
+        </div>
+        <div class="deskIcon" onclick="openWindow('terminal')">
+            <div class="ic">💻</div>
+            <div class="txt">Terminal</div>
+        </div>
+        <div class="deskIcon" onclick="openWindow('browser')">
+            <div class="ic">🌐</div>
+            <div class="txt">Browser</div>
+        </div>
+        <div class="deskIcon" onclick="openWindow('skills')">
+            <div class="ic">⚡</div>
+            <div class="txt">Skills</div>
+        </div>
+        <div class="deskIcon" onclick="openWindow('contact')">
+            <div class="ic">📧</div>
+            <div class="txt">Contact</div>
+        </div>
+        <div class="deskIcon" onclick="downloadResume()">
+            <div class="ic">📄</div>
+            <div class="txt">Resume.pdf</div>
+        </div>
+    </div>
+    
+    <div id="windowArea"></div>
+</div>
+
+<!-- TASKBAR -->
+<div id="taskbar" style="display: none;">
+    <button id="startBtn" onclick="toggleStart()">🪟 Start</button>
+    <div class="taskItems" id="taskList"></div>
+    <div class="sysTray" id="clock">12:00</div>
+</div>
+
+<!-- START MENU -->
+<div id="startMenu">
+    <div class="startHead">👨‍💻 ANDY'S PORTFOLIO</div>
+    <div class="startList">
+        <div class="startItem" onclick="openWindow('projects'); toggleStart()"><span style="font-size: 20px;">📁</span><span>My Projects</span></div>
+        <div class="startItem" onclick="openWindow('games'); toggleStart()"><span style="font-size: 20px;">🎮</span><span>Games Center</span></div>
+        <div class="startItem" onclick="openWindow('calculator'); toggleStart()"><span style="font-size: 20px;">🧮</span><span>Calculator</span></div>
+        <div class="startItem" onclick="openWindow('terminal'); toggleStart()"><span style="font-size: 20px;">💻</span><span>Terminal</span></div>
+        <div class="startItem" onclick="openWindow('browser'); toggleStart()"><span style="font-size: 20px;">🌐</span><span>Browser</span></div>
+        <div class="startItem" onclick="openWindow('skills'); toggleStart()"><span style="font-size: 20px;">⚡</span><span>My Skills</span></div>
+        <div class="startItem" onclick="openWindow('contact'); toggleStart()"><span style="font-size: 20px;">📧</span><span>Contact</span></div>
+        <div class="startItem" onclick="downloadResume(); toggleStart()"><span style="font-size: 20px;">📄</span><span>Download Resume</span></div>
+    </div>
+</div>
+
+<script>
+// Global State
+let windowCount = 0;
+let zIndex = 100;
+const windows = {};
+let currentTheme = 'theme-default';
+let snakeInterval;
+let calcInput = '';
+let browserCount = 0;
+
+// Initialize when page loads
+window.onload = function() {
+    // Boot sequence timing
+    setTimeout(() => {
+        document.getElementById('bootScreen').style.display = 'none';
+        document.getElementById('osSelect').style.display = 'flex';
+    }, 5500);
+    
+    // Clock
+    updateClock();
+    setInterval(updateClock, 1000);
+};
+
+function updateClock() {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('clock').textContent = time;
+}
+
+function loadOS(theme) {
+    currentTheme = theme;
+    document.body.className = theme;
+    document.getElementById('osSelect').style.display = 'none';
+    document.getElementById('desktop').style.display = 'block';
+    document.getElementById('taskbar').style.display = 'flex';
+    
+    // Adjust start button per OS
+    const btn = document.getElementById('startBtn');
+    if (theme === 'theme-win11') btn.innerHTML = '🪟';
+    else if (theme === 'theme-macos') btn.innerHTML = '🍎';
+    else if (theme === 'theme-ubuntu') btn.innerHTML = '🐧';
+    else if (theme === 'theme-retro') btn.innerHTML = '🪟 Start';
+}
+
+function toggleStart() {
+    const menu = document.getElementById('startMenu');
+    menu.classList.toggle('show');
+}
+
+// WINDOW MANAGEMENT
+function openWindow(type) {
+    // Prevent multiple browsers
+    if (type === 'browser') {
+        browserCount++;
+        if (browserCount > 1) {
+            alert('Only one browser instance allowed!');
+            browserCount--;
+            return;
+        }
+    }
+    
+    windowCount++;
+    const id = 'win' + windowCount;
+    zIndex++;
+    
+    const configs = {
+        projects: { title: 'My Projects', icon: '📁', w: 800, h: 600 },
+        games: { title: 'Games Center', icon: '🎮', w: 800, h: 600 },
+        calculator: { title: 'Calculator', icon: '🧮', w: 400, h: 600 },
+        terminal: { title: 'Terminal', icon: '💻', w: 700, h: 500 },
+        browser: { title: 'Chrome Browser', icon: '🌐', w: 1000, h: 700 },
+        skills: { title: 'My Skills', icon: '⚡', w: 700, h: 700 },
+        contact: { title: 'Contact Me', icon: '📧', w: 500, h: 600 },
+        snake: { title: 'Snake Game', icon: '🐍', w: 500, h: 650 },
+        tictactoe: { title: 'Tic Tac Toe', icon: '⭕', w: 450, h: 600 }
+    };
+    
+    const cfg = configs[type];
+    const isMobile = window.innerWidth <= 768;
+    
+    // Create Window
+    const win = document.createElement('div');
+    win.id = id;
+    win.className = 'win';
+    win.style.zIndex = zIndex;
+    win.style.left = isMobile ? '5px' : (100 + (windowCount % 3) * 50) + 'px';
+    win.style.top = isMobile ? '5px' : (50 + (windowCount % 3) * 50) + 'px';
+    win.style.width = isMobile ? 'calc(100% - 10px)' : cfg.w + 'px';
+    win.style.height = isMobile ? 'calc(100% - 70px)' : cfg.h + 'px';
+    
+    win.innerHTML = `
+        <div class="winHead" onmousedown="startDrag(event, '${id}')">
+            <div class="winTitle"><span style="font-size: 18px;">${cfg.icon}</span><span>${cfg.title}</span></div>
+            <div class="winControls">
+                <button class="winBtn min" onclick="minWindow('${id}')">−</button>
+                <button class="winBtn max" onclick="maxWindow('${id}')">□</button>
+                <button class="winBtn close" onclick="closeWindow('${id}')">×</button>
+            </div>
+        </div>
+        <div class="winContent" id="content-${id}">
+            ${getContent(type, id)}
+        </div>
+    `;
+    
+    document.getElementById('windowArea').appendChild(win);
+    windows[id] = { id: id, type: type, element: win, minimized: false, maximized: false };
+    
+    // Taskbar Item
+    const task = document.createElement('div');
+    task.id = 'task-' + id;
+    task.className = 'taskItem active';
+    task.innerHTML = `<span>${cfg.icon}</span><span>${cfg.title}</span>`;
+    task.onclick = () => focusWindow(id);
+    document.getElementById('taskList').appendChild(task);
+    
+    focusWindow(id);
+    
+    // Initialize content
+    if (type === 'skills') initSkills(id);
+    if (type === 'snake') initSnake(id);
+}
+
+function getContent(type, id) {
+    switch(type) {
+        case 'projects':
+            return `
+                <div class="folderGrid">
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/her-birthday/')">
+                        <div class="ic">🎂</div><div class="nm">Her Birthday</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/pookie/')">
+                        <div class="ic">🐻</div><div class="nm">Pookie</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/valentines/')">
+                        <div class="ic">💝</div><div class="nm">Valentines</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/valentine/')">
+                        <div class="ic">❤️</div><div class="nm">Valentine</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://andy9855.github.io/komiwatch/')">
+                        <div class="ic">🎬</div><div class="nm">KomiWatch</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://andy9855.github.io/campus-connect/')">
+                        <div class="ic">🎓</div><div class="nm">Campus Connect</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://andy9855.github.io/Nexus/')">
+                        <div class="ic">🔗</div><div class="nm">Nexus</div>
+                    </div>
+                </div>`;
+                
+        case 'games':
+            return `
+                <div class="folderGrid">
+                    <div class="folderItem" onclick="openWindow('snake')">
+                        <div class="ic">🐍</div><div class="nm">Snake Game</div>
+                    </div>
+                    <div class="folderItem" onclick="openWindow('tictactoe')">
+                        <div class="ic">⭕</div><div class="nm">Tic Tac Toe</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/valentines/')">
+                        <div class="ic">💝</div><div class="nm">Valentines</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/valentine/')">
+                        <div class="ic">❤️</div><div class="nm">Valentine</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/her-birthday/')">
+                        <div class="ic">🎂</div><div class="nm">Her Birthday</div>
+                    </div>
+                    <div class="folderItem" onclick="openURL('https://moiz9855.github.io/pookie/')">
+                        <div class="ic">🐻</div><div class="nm">Pookie</div>
+                    </div>
+                </div>`;
+                
+        case 'calculator':
+            return `
+                <div style="padding: 20px;">
+                    <div class="calcScreen" id="calc-${id}">0</div>
+                    <div class="calcBtns">
+                        <button class="calcBtn clear" onclick="calc('${id}', 'C')">C</button>
+                        <button class="calcBtn" onclick="calc('${id}', '(')">(</button>
+                        <button class="calcBtn" onclick="calc('${id}', ')')">)</button>
+                        <button class="calcBtn op" onclick="calc('${id}', '/')">÷</button>
+                        <button class="calcBtn" onclick="calc('${id}', '7')">7</button>
+                        <button class="calcBtn" onclick="calc('${id}', '8')">8</button>
+                        <button class="calcBtn" onclick="calc('${id}', '9')">9</button>
+                        <button class="calcBtn op" onclick="calc('${id}', '*')">×</button>
+                        <button class="calcBtn" onclick="calc('${id}', '4')">4</button>
+                        <button class="calcBtn" onclick="calc('${id}', '5')">5</button>
+                        <button class="calcBtn" onclick="calc('${id}', '6')">6</button>
+                        <button class="calcBtn op" onclick="calc('${id}', '-')">−</button>
+                        <button class="calcBtn" onclick="calc('${id}', '1')">1</button>
+                        <button class="calcBtn" onclick="calc('${id}', '2')">2</button>
+                        <button class="calcBtn" onclick="calc('${id}', '3')">3</button>
+                        <button class="calcBtn op" onclick="calc('${id}', '+')">+</button>
+                        <button class="calcBtn" onclick="calc('${id}', '0')" style="grid-column: span 2;">0</button>
+                        <button class="calcBtn" onclick="calc('${id}', '.')">.</button>
+                        <button class="calcBtn eq" onclick="calc('${id}', '=')">=</button>
+                    </div>
+                </div>`;
+                
+        case 'terminal':
+            return `
+                <div class="term" id="term-${id}" onclick="document.getElementById('input-${id}').focus()">
+                    <div class="termLine">AndyOS Terminal v2.0</div>
+                    <div class="termLine" style="color: #667eea;">Type 'help' for available commands</div>
+                    <div id="history-${id}"></div>
+                    <div class="termInputLine">
+                        <span class="termPrompt">andy@portfolio:~$</span>
+                        <input type="text" class="termInput" id="input-${id}" onkeydown="if(event.key==='Enter')executeCommand('${id}', this.value)" autocomplete="off" spellcheck="false">
+                    </div>
+                </div>`;
+                
+        case 'browser':
+            return `
+                <div style="height: 100%; display: flex; flex-direction: column;">
+                    <div class="browserBar">
+                        <button class="brBtn" onclick="alert('Back')">←</button>
+                        <button class="brBtn" onclick="alert('Forward')">→</button>
+                        <button class="brBtn" onclick="this.parentElement.nextElementSibling.src=document.getElementById('addr-${id}').value">↻</button>
+                        <input type="text" class="addrBar" id="addr-${id}" value="https://www.google.com" onkeydown="if(event.key==='Enter'){this.parentElement.nextElementSibling.src=this.value}">
+                    </div>
+                    <iframe class="browserFrame" src="https://www.google.com/webhp?igu=1" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+                </div>`;
+                
+        case 'skills':
+            return `
+                <div class="skillsBox">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h2 style="color: white; font-size: 28px; margin-bottom: 10px;">⚡ Technical Skills</h2>
+                        <p style="color: #667eea;">Full Stack Developer & Designer</p>
+                    </div>
+                    
+                    <div class="skillCat">
+                        <h3>🎨 Frontend Development</h3>
+                        <div class="skillRow"><div class="skillTop"><span>HTML5</span><span>90%</span></div><div class="skillBar"><div class="skillFill" data-w="90%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>CSS3</span><span>85%</span></div><div class="skillBar"><div class="skillFill" data-w="85%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>JavaScript ES6+</span><span>85%</span></div><div class="skillBar"><div class="skillFill" data-w="85%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>React.js</span><span>30%</span></div><div class="skillBar"><div class="skillFill" data-w="30%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>TypeScript</span><span>70%</span></div><div class="skillBar"><div class="skillFill" data-w="70%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>Responsive Design</span><span>90%</span></div><div class="skillBar"><div class="skillFill" data-w="90%"></div></div></div>
+                    </div>
+                    
+                    <div class="skillCat">
+                        <h3>⚙️ Backend Development</h3>
+                        <div class="skillRow"><div class="skillTop"><span>Node.js</span><span>70%</span></div><div class="skillBar"><div class="skillFill" data-w="70%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>REST APIs</span><span>75%</span></div><div class="skillBar"><div class="skillFill" data-w="75%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>SQL Databases</span><span>65%</span></div><div class="skillBar"><div class="skillFill" data-w="65%"></div></div></div>
+                    </div>
+                    
+                    <div class="skillCat">
+                        <h3>🛠️ Tools & Workflow</h3>
+                        <div class="skillRow"><div class="skillTop"><span>Git & GitHub</span><span>85%</span></div><div class="skillBar"><div class="skillFill" data-w="85%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>VS Code</span><span>95%</span></div><div class="skillBar"><div class="skillFill" data-w="95%"></div></div></div>
+                        <div class="skillRow"><div class="skillTop"><span>Terminal/CLI</span><span>75%</span></div><div class="skillBar"><div class="skillFill" data-w="75%"></div></div></div>
+                    </div>
+                </div>`;
+                
+        case 'contact':
+            return `
+                <div>
+                    <a href="mailto:moizgaming985@gmail.com" class="contactItem" style="text-decoration: none;">
+                        <div class="ic">📧</div>
+                        <div class="info"><h4>Email</h4><p>moizgaming985@gmail.com</p></div>
+                    </a>
+                    <a href="https://github.com/moiz9855" target="_blank" class="contactItem" style="text-decoration: none;">
+                        <div class="ic">🐙</div>
+                        <div class="info"><h4>GitHub - Moiz9855</h4><p>github.com/moiz9855</p></div>
+                    </a>
+                    <a href="https://github.com/andy985" target="_blank" class="contactItem" style="text-decoration: none;">
+                        <div class="ic">🐱</div>
+                        <div class="info"><h4>GitHub - Andy985</h4><p>github.com/andy985</p></div>
+                    </a>
+                    <a href="https://instagram.com/am_moiz16" target="_blank" class="contactItem" style="text-decoration: none;">
+                        <div class="ic">📷</div>
+                        <div class="info"><h4>Instagram</h4><p>@am_moiz16</p></div>
+                    </a>
+                    <a href="https://wa.me/03333425155" target="_blank" class="contactItem" style="text-decoration: none;">
+                        <div class="ic">💬</div>
+                        <div class="info"><h4>WhatsApp</h4><p>03333425155</p></div>
+                    </a>
+                </div>`;
+                
+        case 'snake':
+            return `
+                <div class="gameContainer">
+                    <div class="gameTitle">🐍 Snake Game</div>
+                    <canvas id="snake-${id}" width="400" height="400" style="background: #000; border: 3px solid #667eea; border-radius: 8px;"></canvas>
+                    <div class="gameInfo">
+                        <span>Score: <span id="score-${id}" style="color: #667eea; font-weight: bold;">0</span></span>
+                        <span>High Score: <span style="color: #e95420; font-weight: bold;">0</span></span>
+                    </div>
+                    <div>
+                        <button class="gameBtn" onclick="startSnake('${id}')">▶ Start</button>
+                        <button class="gameBtn" onclick="stopSnake()">⏹ Stop</button>
+                    </div>
+                    <div style="margin-top: 15px; color: #666; font-size: 14px;">Use Arrow Keys to Control</div>
+                </div>`;
+                
+        case 'tictactoe':
+            return `
+                <div class="gameContainer">
+                    <div class="gameTitle">⭕ Tic Tac Toe</div>
+                    <div class="tttGrid" id="ttt-${id}">
+                        ${[0,1,2,3,4,5,6,7,8].map(i => `<div class="tttCell" onclick="playTicTac('${id}', ${i})" id="cell-${id}-${i}"></div>`).join('')}
+                    </div>
+                    <div style="margin-top: 20px; font-size: 20px; color: #667eea; font-weight: 600;" id="status-${id}">X's Turn</div>
+                    <button class="gameBtn" onclick="resetTicTac('${id}')" style="margin-top: 20px;">🔄 New Game</button>
+                </div>`;
+                
+        default:
+            return '<div style="padding: 40px; text-align: center; color: #666;">Select an item</div>';
+    }
+}
+
+// CALCULATOR
+function calc(id, val) {
+    const screen = document.getElementById(`calc-${id}`);
+    if (!screen) return;
+    
+    if (val === 'C') {
+        calcInput = '';
+        screen.textContent = '0';
+    } else if (val === '=') {
+        try {
+            const result = eval(calcInput);
+            screen.textContent = result;
+            calcInput = String(result);
+        } catch {
+            screen.textContent = 'Error';
+            calcInput = '';
+        }
+    } else {
+        calcInput += val;
+        screen.textContent = calcInput;
+    }
+}
+
+// TERMINAL
+function executeCommand(id, cmd) {
+    const input = document.getElementById(`input-${id}`);
+    const history = document.getElementById(`history-${id}`);
+    if (!input || !history) return;
+    
+    // Add command to history
+    const cmdLine = document.createElement('div');
+    cmdLine.className = 'termLine';
+    cmdLine.innerHTML = `<span class="termPrompt">andy@portfolio:~$</span> ${cmd}`;
+    history.appendChild(cmdLine);
+    
+    let response = '';
+    const c = cmd.toLowerCase().trim();
+    
+    switch(c) {
+        case 'help': response = 'Available: help, clear, date, whoami, skills, projects, contact, uptime, reboot'; break;
+        case 'clear': history.innerHTML = ''; input.value = ''; return;
+        case 'date': response = new Date().toString(); break;
+        case 'whoami': response = 'Andy - Full Stack Developer & Creative Coder'; break;
+        case 'skills': response = 'HTML:90% | CSS:85% | JS:85% | React:30% | Node:70%'; break;
+        case 'projects': response = 'KomiWatch, CampusConnect, Nexus, Valentines, Pookie'; break;
+        case 'contact': response = 'Email: moizgaming985@gmail.com | IG: @am_moiz16'; break;
+        case 'uptime': response = 'System running since boot'; break;
+        case 'reboot': location.reload(); return;
+        case '': response = ''; break;
+        default: response = `Command not found: ${cmd}. Try 'help'`;
+    }
+    
+    if (response) {
+        const respLine = document.createElement('div');
+        respLine.className = 'termLine';
+        respLine.style.color = '#0f0';
+        respLine.textContent = response;
+        history.appendChild(respLine);
+    }
+    
+    input.value = '';
+    history.scrollTop = history.scrollHeight;
+}
+
+// SKILLS ANIMATION
+function initSkills(id) {
+    setTimeout(() => {
+        document.querySelectorAll(`#content-${id} .skillFill`).forEach(bar => {
+            bar.style.width = bar.dataset.w;
+        });
+    }, 100);
+}
+
+// SNAKE GAME
+let snakes = {};
+let food = {};
+
+function initSnake(id) {
+    const canvas = document.getElementById(`snake-${id}`);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    snakes[id] = {
+        x: 10, y: 10,
+        dx: 0, dy: 0,
+        tail: [],
+        length: 5,
+        score: 0,
+        ctx: ctx,
+        canvas: canvas,
+        running: false
+    };
+    
+    food[id] = { x: 15, y: 15 };
+    drawSnake(id);
+}
+
+function drawSnake(id) {
+    const s = snakes[id];
+    if (!s) return;
+    
+    s.ctx.fillStyle = '#000';
+    s.ctx.fillRect(0, 0, 400, 400);
+    
+    // Draw food
+    s.ctx.fillStyle = '#e95420';
+    s.ctx.fillRect(food[id].x * 20, food[id].y * 20, 18, 18);
+    
+    // Draw snake
+    s.ctx.fillStyle = '#667eea';
+    s.tail.forEach(t => {
+        s.ctx.fillRect(t.x * 20, t.y * 20, 18, 18);
+    });
+    s.ctx.fillRect(s.x * 20, s.y * 20, 18, 18);
+}
+
+function startSnake(id) {
+    if (!snakes[id]) initSnake(id);
+    const s = snakes[id];
+    if (s.running) return;
+    
+    s.dx = 1; s.dy = 0;
+    s.running = true;
+    
+    document.addEventListener('keydown', e => {
+        if (!snakes[id]?.running) return;
+        switch(e.key) {
+            case 'ArrowUp': if (s.dy === 0) { s.dx = 0; s.dy = -1; } break;
+            case 'ArrowDown': if (s.dy === 0) { s.dx = 0; s.dy = 1; } break;
+            case 'ArrowLeft': if (s.dx === 0) { s.dx = -1; s.dy = 0; } break;
+            case 'ArrowRight': if (s.dx === 0) { s.dx = 1; s.dy = 0; } break;
+        }
+    });
+    
+    snakeInterval = setInterval(() => updateSnake(id), 100);
+}
+
+function updateSnake(id) {
+    const s = snakes[id];
+    if (!s || !s.running) return;
+    
+    s.x += s.dx;
+    s.y += s.dy;
+    
+    // Wall collision
+    if (s.x < 0 || s.x >= 20 || s.y < 0 || s.y >= 20) {
+        gameOverSnake(id);
+        return;
+    }
+    
+    // Self collision
+    if (s.tail.some(t => t.x === s.x && t.y === s.y)) {
+        gameOverSnake(id);
+        return;
+    }
+    
+    s.tail.push({ x: s.x, y: s.y });
+    
+    // Eat food
+    if (s.x === food[id].x && s.y === food[id].y) {
+        s.length++;
+        s.score += 10;
+        document.getElementById(`score-${id}`).textContent = s.score;
+        food[id] = {
+            x: Math.floor(Math.random() * 20),
+            y: Math.floor(Math.random() * 20)
+        };
+    } else {
+        s.tail.shift();
+    }
+    
+    drawSnake(id);
+}
+
+function gameOverSnake(id) {
+    snakes[id].running = false;
+    clearInterval(snakeInterval);
+    alert(`Game Over! Score: ${snakes[id].score}`);
+    snakes[id].score = 0;
+    snakes[id].length = 5;
+    snakes[id].tail = [];
+    snakes[id].x = 10;
+    snakes[id].y = 10;
+    document.getElementById(`score-${id}`).textContent = '0';
+    drawSnake(id);
+}
+
+function stopSnake() {
+    clearInterval(snakeInterval);
+    Object.keys(snakes).forEach(id => snakes[id].running = false);
+}
+
+// TIC TAC TOE
+let tttGames = {};
+
+function playTicTac(id, cell) {
+    if (!tttGames[id]) tttGames[id] = { board: ['','','','','','','','',''], turn: 'X' };
+    const g = tttGames[id];
+    const el = document.getElementById(`cell-${id}-${cell}`);
+    
+    if (g.board[cell] || checkWinTtt(g.board)) return;
+    
+    g.board[cell] = g.turn;
+    el.textContent = g.turn;
+    el.classList.add(g.turn.toLowerCase());
+    
+    if (checkWinTtt(g.board)) {
+        document.getElementById(`status-${id}`).textContent = g.turn + ' Wins! 🎉';
+        return;
+    }
+    
+    if (g.board.every(c => c !== '')) {
+        document.getElementById(`status-${id}`).textContent = "It's a Draw!";
+        return;
+    }
+    
+    g.turn = g.turn === 'X' ? 'O' : 'X';
+    document.getElementById(`status-${id}`).textContent = g.turn + "'s Turn";
+}
+
+function checkWinTtt(board) {
+    const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return wins.some(w => board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]);
+}
+
+function resetTicTac(id) {
+    tttGames[id] = { board: ['','','','','','','','',''], turn: 'X' };
+    for (let i = 0; i < 9; i++) {
+        const el = document.getElementById(`cell-${id}-${i}`);
+        el.textContent = '';
+        el.className = 'tttCell';
+    }
+    document.getElementById(`status-${id}`).textContent = "X's Turn";
+}
+
+// WINDOW CONTROLS
+function focusWindow(id) {
+    if (!windows[id]) return;
+    if (windows[id].minimized) {
+        windows[id].element.classList.remove('winMin');
+        windows[id].minimized = false;
+    }
+    zIndex++;
+    windows[id].element.style.zIndex = zIndex;
+    document.querySelectorAll('.taskItem').forEach(t => t.classList.remove('active'));
+    document.getElementById('task-' + id)?.classList.add('active');
+}
+
+function minWindow(id) {
+    if (!windows[id]) return;
+    windows[id].element.classList.add('winMin');
+    windows[id].minimized = true;
+    document.getElementById('task-' + id)?.classList.remove('active');
+}
+
+function maxWindow(id) {
+    if (!windows[id]) return;
+    const w = windows[id];
+    w.maximized = !w.maximized;
+    if (w.maximized) w.element.classList.add('winMax');
+    else w.element.classList.remove('winMax');
+}
+
+function closeWindow(id) {
+    if (!windows[id]) return;
+    windows[id].element.remove();
+    document.getElementById('task-' + id)?.remove();
+    if (windows[id].type === 'browser') browserCount--;
+    delete windows[id];
+}
+
+function startDrag(e, id) {
+    if (!windows[id] || windows[id].maximized) return;
+    const win = windows[id].element;
+    const startX = e.clientX - win.offsetLeft;
+    const startY = e.clientY - win.offsetTop;
+    
+    function move(e) {
+        win.style.left = (e.clientX - startX) + 'px';
+        win.style.top = (e.clientY - startY) + 'px';
+    }
+    function up() {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+    }
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+}
+
+function openURL(url) {
+    window.open(url, '_blank');
+}
+
+function downloadResume() {
+    alert('📄 Resume download started!\n\nFile: moiz.pdf');
+}
+
+// Close start menu on outside click
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#startMenu') && !e.target.closest('#startBtn')) {
+        document.getElementById('startMenu').classList.remove('show');
+    }
+});
+</script>
+
+</body>
+</html>
